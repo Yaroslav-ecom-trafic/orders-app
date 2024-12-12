@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "19179d0a393123f85c24f8dc0d053d3f"
-application_url = "https://example.com/"
+application_url = "https://convention-flu-never-ur.trycloudflare.com"
 embedded = true
 name = "orders-app"
 handle = "orders-app-26"
@@ -18,7 +18,15 @@ api_version = "2024-10"
 scopes = "write_products"
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://convention-flu-never-ur.trycloudflare.com/auth/callback",
+  "https://convention-flu-never-ur.trycloudflare.com/auth/shopify/callback",
+  "https://convention-flu-never-ur.trycloudflare.com/api/auth/callback"
+]
 
 [pos]
 embedded = false
+
+[build]
+dev_store_url = "zeeper-store.myshopify.com"
+automatically_update_urls_on_dev = true
