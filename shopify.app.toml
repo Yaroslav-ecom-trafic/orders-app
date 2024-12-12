@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "19179d0a393123f85c24f8dc0d053d3f"
-application_url = "https://convention-flu-never-ur.trycloudflare.com"
+application_url = "https://mounts-carnival-full-lands.trycloudflare.com"
 embedded = true
 name = "orders-app"
 handle = "orders-app-26"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://convention-flu-never-ur.trycloudflare.com/auth/callback",
-  "https://convention-flu-never-ur.trycloudflare.com/auth/shopify/callback",
-  "https://convention-flu-never-ur.trycloudflare.com/api/auth/callback"
+  "https://mounts-carnival-full-lands.trycloudflare.com/auth/callback",
+  "https://mounts-carnival-full-lands.trycloudflare.com/auth/shopify/callback",
+  "https://mounts-carnival-full-lands.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

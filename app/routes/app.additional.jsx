@@ -1,83 +1,90 @@
 import {
-  Box,
-  Card,
-  Layout,
-  Link,
-  List,
   Page,
-  Text,
-  BlockStack,
+  DataTable,
+  Button
 } from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
 
-export default function AdditionalPage() {
-  return (
-    <Page>
-      <TitleBar title="Additional page" />
-      <Layout>
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="300">
-              <Text as="p" variant="bodyMd">
-                The app template comes with an additional page which
-                demonstrates how to create multiple pages within app navigation
-                using{" "}
-                <Link
-                  url="https://shopify.dev/docs/apps/tools/app-bridge"
-                  target="_blank"
-                  removeUnderline
-                >
-                  App Bridge
-                </Link>
-                .
-              </Text>
-              <Text as="p" variant="bodyMd">
-                To create your own page and have it show up in the app
-                navigation, add a page inside <Code>app/routes</Code>, and a
-                link to it in the <Code>&lt;NavMenu&gt;</Code> component found
-                in <Code>app/routes/app.jsx</Code>.
-              </Text>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-        <Layout.Section variant="oneThird">
-          <Card>
-            <BlockStack gap="200">
-              <Text as="h2" variant="headingMd">
-                Resources
-              </Text>
-              <List>
-                <List.Item>
-                  <Link
-                    url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
-                    target="_blank"
-                    removeUnderline
-                  >
-                    App nav best practices
-                  </Link>
-                </List.Item>
-              </List>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-      </Layout>
-    </Page>
-  );
+const headings = [
+  { title: 'name' },
+  { title: 'created at' },
+  { title: 'total amount' },
+  { title: 'status' },
+];
+
+import { authenticate } from "../shopify.server";
+import { json } from "@remix-run/node";
+import { useLoaderData, Form, useActionData } from "@remix-run/react";
+import { getProducts } from '../models/Products.server';
+import { createRandomOrder, getOrders } from "../models/Orders.server";
+import { useState, useEffect } from "react";
+
+export async function loader({ request }) {
+  const { session } = await authenticate.admin(request);
+  const { shop } = session;
+
+  const orders = await getOrders(shop);
+
+  return json({
+    orders
+  });
 }
 
-function Code({ children }) {
+export async function action({ request }) {
+  const { admin, session } = await authenticate.admin(request);
+  const { shop } = session;
+
+  const products = await getProducts(admin.graphql);
+
+  const order = await createRandomOrder(shop, products.products);
+
+  return json({ order });
+}
+
+export default function AdditionalPage() {
+  const data = useLoaderData();
+  const actionData = useActionData();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [ordersList, setOrdersList] = useState(data.orders);
+
+  console.log(ordersList);
+
+  useEffect(() => {
+    if (actionData?.order) {
+      setOrdersList(prevState => [...prevState, actionData.order]);
+      chengeLoadingStatus();
+    }
+  }, [actionData]);
+
+  const rows = ordersList.map(order => [
+    order.name,
+    order.created_at,
+    order.total_amount,
+    order.status
+  ]);
+
+  const chengeLoadingStatus = () => {
+    setIsLoading(!isLoading);
+  }
+
   return (
-    <Box
-      as="span"
-      padding="025"
-      paddingInlineStart="100"
-      paddingInlineEnd="100"
-      background="bg-surface-active"
-      borderWidth="025"
-      borderColor="border"
-      borderRadius="100"
-    >
-      <code>{children}</code>
-    </Box>
+    <Page>
+
+      <DataTable
+        columnContentTypes={[
+          'text',
+          'text',
+          'numeric',
+          'numeric',
+        ]}
+        headings={headings.map((heading) => heading.title)}
+        rows={rows}
+      >
+        
+      </DataTable>
+      <Form method="POST" onSubmit={chengeLoadingStatus}>
+        <Button submit={true} loading={isLoading}>add random order</Button>
+      </Form>
+    </Page>
   );
 }
